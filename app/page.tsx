@@ -1,30 +1,24 @@
-import { brands } from "@/data/brand"
-import { sales } from "@/data/sales";
-import { 
-  calculateDailyCommission,
-  calculateMonthlyCommission,
-} from "@/lib/commissions"
+"use client";
+
+import { useState } from "react";
+import Dashboard from "@/components/Dashboard";
+import SaleForm from "@/components/SaleForm";
+import { Sale } from "@/types/sale";
+import { getSales } from "@/lib/storage";
 
 export default function Home() {
-  const dailyCommission = calculateDailyCommission(
-    sales,
-    brands,
-    "2026-09-03"
-  )
-
-  const monthlyCommission = calculateMonthlyCommission(
-    sales,
-    brands,
-    2026,
-    8
-  )
+  const [sales, setSales] = useState<Sale[]>(() => getSales());
 
   return (
     <main>
       <h1>MiiN Commission</h1>
 
-      <p>Comision total hoy: {dailyCommission} €</p>
-      <p>Comision total mes: {monthlyCommission} €</p>
+      <Dashboard sales={sales} />
+
+      <SaleForm 
+        onSaleAdded={(newSale) => {
+          setSales((currentSales) => [...currentSales, newSale])
+        }}/>
     </main>
   );
-}
+} 
