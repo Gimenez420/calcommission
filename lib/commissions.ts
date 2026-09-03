@@ -28,3 +28,30 @@ export function calculateTotalCommission(
 
     return Number(total.toFixed(2));
 }
+
+export function calculateDailyCommission(
+    sales: Sale[],
+    brands: Brand[],
+    date: string
+): number {
+    const dailySales = sales.filter((sale) => sale.date === date)
+
+    return calculateTotalCommission(dailySales, brands)
+}
+
+export function calculateMonthlyCommission(
+    sales: Sale[],
+    brands: Brand[],
+    year: number,
+    month: number
+): number {
+    const monthlySales = sales.filter((sale) => {
+        const saleDate = new Date(sale.date)
+
+        return (
+            saleDate.getFullYear() === year &&
+            saleDate.getMonth() === month
+        )
+    })
+    return calculateTotalCommission(monthlySales, brands)
+}
