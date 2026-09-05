@@ -1,13 +1,13 @@
-import { Brand } from "@/types/brand";
-import { Sale } from "@/types/sale";
+import { Brand } from "@/types/brand"
+import { Sale } from "@/types/sale"
 
 export function calculateCommission(
     amount: number,
     brand: Brand
 ): number {
-    const commission = amount * (brand.commission / 100);
+    const commission = amount * (brand.commission / 100)
 
-    return Number(commission.toFixed(2));
+    return Number(commission.toFixed(2))
 }
 
 export function calculateTotalCommission(
@@ -17,16 +17,16 @@ export function calculateTotalCommission(
     const total = sales.reduce((sum, sale) => {
         const brand = brands.find(
             (brand) => brand.id === sale.brandId
-        );
+        )
 
         if (!brand) {
-            return sum;
+            return sum
         }
 
-        return sum + calculateCommission(sale.amount, brand);
-    }, 0);
+        return sum + calculateCommission(sale.amount, brand)
+    }, 0)
 
-    return Number(total.toFixed(2));
+    return Number(total.toFixed(2))
 }
 
 export function calculateDailyCommission(
@@ -54,4 +54,24 @@ export function calculateMonthlyCommission(
         )
     })
     return calculateTotalCommission(monthlySales, brands)
+}
+
+export function calculateQuarterlyCommission(
+  sales: Sale[],
+  brands: Brand[],
+  year: number,
+  month: number
+): number {
+  const quarterStartMonth = Math.floor(month / 3) * 3;
+
+  const start = new Date(year, quarterStartMonth, 1);
+  const end = new Date(year, quarterStartMonth + 3, 1);
+
+  const quarterlySales = sales.filter((sale) => {
+    const saleDate = new Date(`${sale.date}T00:00:00`);
+
+    return saleDate >= start && saleDate < end;
+  });
+
+  return calculateTotalCommission(quarterlySales, brands);
 }

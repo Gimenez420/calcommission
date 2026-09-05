@@ -1,29 +1,33 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { brands } from "@/data/brand";
-import { Sale } from "@/types/sale";
-import { getSales, saveSales } from "@/lib/storage";
+import { useState } from "react"
+import { brands } from "@/data/brand"
+import { Sale } from "@/types/sale"
+import { getSales, saveSales } from "@/lib/storage"
 
 type SaleFormProps = {
-  onSaleAdded: (sale: Sale) => void;
-};
+  onSaleAdded: (sale: Sale) => void
+  onClose: () => void
+}
 
-export default function SaleForm({ onSaleAdded }: SaleFormProps) {
+export default function SaleForm({
+  onSaleAdded,
+  onClose,
+}: SaleFormProps) {
   const [date, setDate] = useState(
     new Date().toISOString().split("T")[0]
-  );
+  )
 
-  const [brandId, setBrandId] = useState(brands[0].id);
-  const [amount, setAmount] = useState("");
+  const [brandId, setBrandId] = useState(brands[0].id)
+  const [amount, setAmount] = useState("")
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+    event.preventDefault()
 
-    const numericAmount = Number(amount);
+    const numericAmount = Number(amount)
 
     if (!numericAmount || numericAmount <= 0) {
-      return;
+      return
     }
 
     const newSale: Sale = {
@@ -31,15 +35,16 @@ export default function SaleForm({ onSaleAdded }: SaleFormProps) {
       brandId,
       amount: numericAmount,
       date,
-    };
+    }
 
-    const currentSales = getSales();
+    const currentSales = getSales()
 
-    saveSales([...currentSales, newSale]);
+    saveSales([...currentSales, newSale])
 
-    onSaleAdded(newSale);
-
-    setAmount("");
+    onSaleAdded(newSale)
+    onClose()
+    
+    setAmount("")
   }
 
   return (
@@ -89,5 +94,5 @@ export default function SaleForm({ onSaleAdded }: SaleFormProps) {
         Guardar venta
       </button>
     </form>
-  );
+  )
 }

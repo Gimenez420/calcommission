@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Dashboard from "@/components/Dashboard";
-import SaleForm from "@/components/SaleForm";
 import { Sale } from "@/types/sale";
 import { getSales } from "@/lib/storage";
 
@@ -13,12 +12,12 @@ export default function Home() {
     <main>
       <h1>MiiN Commission</h1>
 
-      <Dashboard sales={sales} />
-
-      <SaleForm 
+      <Dashboard
+        sales={sales}
         onSaleAdded={(newSale) => {
-          setSales((currentSales) => [...currentSales, newSale])
-        }}/>
+          setSales((currentSales) => [...currentSales, newSale]);
+        }}
+      />
     </main>
   );
-} 
+}
