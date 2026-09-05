@@ -5,7 +5,11 @@ export function calculateCommission(
     amount: number,
     brand: Brand
 ): number {
-    const commission = amount * (brand.commission / 100)
+    
+    const amountWithoutVat = amount / 1.21
+
+const commission =
+  amountWithoutVat * (brand.commission / 100)
 
     return Number(commission.toFixed(2))
 }
