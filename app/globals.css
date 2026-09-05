@@ -1,31 +1,72 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ─────────────────────────
+     MiiN Commission — Colors
+     ───────────────────────── */
+
+  --color-background: #fff7fb;
+  --color-surface: #fffdfd;
+
+  --color-pink-50: #fff1f7;
+  --color-pink-100: #fce3ee;
+  --color-pink-200: #f7c9dc;
+  --color-pink-300: #efabc6;
+  --color-pink-400: #e58daf;
+  --color-pink-500: #d96f9b;
+  --color-pink-600: #c75a87;
+
+  --color-text: #54283c;
+  --color-text-soft: #8a6072;
+
+  --color-border: #f0d5e1;
+
+  --color-lavender: #eee8f7;
+  --color-lavender-dark: #746487;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* ─────────────────────────
+     Backgrounds
+     ───────────────────────── */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-background: var(--color-background);
+  --color-surface: var(--color-surface);
+
+  /* ─────────────────────────
+     Pink palette
+     ───────────────────────── */
+
+  --color-pink-50: var(--color-pink-50);
+  --color-pink-100: var(--color-pink-100);
+  --color-pink-200: var(--color-pink-200);
+  --color-pink-300: var(--color-pink-300);
+  --color-pink-400: var(--color-pink-400);
+  --color-pink-500: var(--color-pink-500);
+  --color-pink-600: var(--color-pink-600);
+
+  /* ─────────────────────────
+     Text
+     ───────────────────────── */
+
+  --color-text: var(--color-text);
+  --color-text-soft: var(--color-text-soft);
+
+  /* ─────────────────────────
+     UI
+     ───────────────────────── */
+
+  --color-border: var(--color-border);
+
+  /* ─────────────────────────
+     Accent
+     ───────────────────────── */
+
+  --color-lavender: var(--color-lavender);
+  --color-lavender-dark: var(--color-lavender-dark);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-body {
-  background: #fff7fb;
-  color: #3f2734;
+  background: var(--color-background);
+  color: var(--color-text);
 }
