@@ -5,6 +5,11 @@ import { brands } from "@/data/brand"
 import { Sale } from "@/types/sale"
 import { getSales, saveSales } from "@/lib/storage"
 
+type PendingSale = {
+  brandId: string
+  amount: string
+}
+
 type SaleFormProps = {
   onSaleAdded: (sale: Sale) => void
   onClose: () => void
@@ -18,33 +23,50 @@ export default function SaleForm({
     new Date().toISOString().split("T")[0]
   )
 
+  const [pendingSales, setPendingSales] = useState<PendingSale[]>([])
+
   const [brandId, setBrandId] = useState(brands[0].id)
   const [amount, setAmount] = useState("")
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-
-    const numericAmount = Number(amount)
-
-    if (!numericAmount || numericAmount <= 0) {
+  function handleAddSale() {
+    if (!amount || Number(amount) <= 0) {
       return
     }
 
-    const newSale: Sale = {
-      id: crypto.randomUUID(),
-      brandId,
-      amount: numericAmount,
-      date,
+    setPendingSales((currentSales) => [
+      ...currentSales,
+      {
+        brandId,
+        amount
+      }
+    ])
+
+    setAmount("")
+  }
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (pendingSales.length === 0) {
+      return;
     }
 
-    const currentSales = getSales()
+    const newSales: Sale[] = pendingSales.map((sale) => ({
+      id: crypto.randomUUID(),
+      brandId: sale.brandId,
+      amount: Number(sale.amount),
+      date,
+    }));
 
-    saveSales([...currentSales, newSale])
+    const currentSales = getSales();
 
-    onSaleAdded(newSale)
-    onClose()
-    
-    setAmount("")
+    saveSales([...currentSales, ...newSales]);
+
+    newSales.forEach((sale) => {
+      onSaleAdded(sale);
+    });
+
+    onClose();
   }
 
   return (
@@ -58,6 +80,24 @@ export default function SaleForm({
           value={date}
           onChange={(event) => setDate(event.target.value)}
         />
+      </div>
+      <div>
+        <h3>Ventas añadidas</h3>
+
+        <div>
+          {pendingSales.map((sale, index) => {
+            const brand = brands.find(
+              (brand) => brand.id === sale.brandId
+            )
+
+            return (
+              <div key={index}>
+                <span>{brand?.name}</span>
+                <span>{Number(sale.amount).toFixed(2)} €</span>
+              </div>
+            )
+          })}
+        </div>
       </div>
 
       <div>
@@ -89,9 +129,17 @@ export default function SaleForm({
           onChange={(event) => setAmount(event.target.value)}
         />
       </div>
+      <div>
+        <button
+          type="button"
+          onClick={handleAddSale}
+          >
+            + Añadir venta
+          </button>
+      </div>
 
       <button type="submit">
-        Guardar venta
+        Guardar ticket
       </button>
     </form>
   )
