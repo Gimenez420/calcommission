@@ -1,6 +1,12 @@
 import { Brand } from "@/types/brand"
 import { Sale } from "@/types/sale"
 
+function parseSaleDate(date: string) {
+  const [year, month, day] = date.split("-").map(Number)
+
+  return new Date(year, month - 1, day)
+}
+
 export function calculateCommission(
     amount: number,
     brand: Brand
@@ -50,7 +56,7 @@ export function calculateMonthlyCommission(
     month: number
 ): number {
     const monthlySales = sales.filter((sale) => {
-        const saleDate = new Date(sale.date)
+        const saleDate = parseSaleDate(sale.date)
 
         return (
             saleDate.getFullYear() === year &&
@@ -72,7 +78,7 @@ export function calculateQuarterlyCommission(
   const end = new Date(year, quarterStartMonth + 3, 1);
 
   const quarterlySales = sales.filter((sale) => {
-    const saleDate = new Date(`${sale.date}T00:00:00`);
+    const saleDate = parseSaleDate(sale.date)
 
     return saleDate >= start && saleDate < end;
   });

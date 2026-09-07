@@ -10,18 +10,26 @@ import AddSaleButton from "./AddSaleButton"
 import {useState} from "react"
 import SaleModal from "./SaleModal"
 
+function getLocalDate() {
+  const date = new Date()
+
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
+
+  return `${year}-${month}-${day}`
+}
+
 type DashboardProps = {
     sales: Sale[]   
     onSaleAdded: (sale: Sale) => void
-    onViewSales: () => void
 }
 
 export default function Dashboard({
     sales,
     onSaleAdded,
-    onViewSales
 }: DashboardProps) {
-    const today = new Date().toISOString().split("T")[0]
+    const today = getLocalDate()
     const [isSaleFormOpen, setIsSaleFormOpen] = useState(false)
     const currentDate = new Date()
 

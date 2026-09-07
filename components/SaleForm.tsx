@@ -74,7 +74,7 @@ export default function SaleForm({
     }
 
     const newSales: Sale[] = pendingSales.map((sale) => ({
-      id: crypto.randomUUID(),
+      id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
       brandId: sale.brandId,
       amount: Number(sale.amount),
       date,
