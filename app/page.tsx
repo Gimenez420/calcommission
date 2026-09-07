@@ -12,8 +12,9 @@ import {
 } from "@/lib/storage"
 import SalesList from "@/components/SaleList"
 import BottomNav from "@/components/BottomNav"
+import { Sale } from "@/types/sale"
 
-const EMPTY_SALES = []
+const EMPTY_SALES: Sale[] = []
 
 export default function Home() {
   const sales = useSyncExternalStore(
