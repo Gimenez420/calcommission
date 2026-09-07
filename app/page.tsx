@@ -4,13 +4,15 @@ import { useState } from "react"
 import Dashboard from "@/components/Dashboard"
 import { Sale } from "@/types/sale"
 import { getSales } from "@/lib/storage"
+import SalesList from "@/components/SaleList"
+import BottomNav from "@/components/BottomNav"
 
 export default function Home() {
   const [sales, setSales] = useState<Sale[]>(() => getSales())
-
+  const [view, setView] = useState<"dashboard" | "sales">("dashboard")
 
   return (
-    <main className="mint-h-screen bg-[#fff7fb] px-5 py-6">
+    <main className="min-h-screen bg-[#fff7fb] px-5 pb-28 pt-6">
      <div className="text-center">
         <div className="mb-2 text-2xl text-pink-400">
           ♡
@@ -26,13 +28,36 @@ export default function Home() {
       </div>
 
     
-        <Dashboard 
-          sales={sales}
-          onSaleAdded={(newSale) => {
-            setSales((currentSales) => [...currentSales, newSale])
-          }}
+        {view === "dashboard" ? (
+          <Dashboard
+            sales={sales}
+            onSaleAdded={(newSale) => {
+              setSales((currentSales) => [...currentSales, newSale])
+            }}
+            onViewSales={() => setView("sales")}
+          />
+        ) : (
+         <div className="mx-auto mt-6 w-full max-w-md space-y-5">
+
+
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-text">
+                Ventas
+              </h2>
+
+              <p className="mt-1 text-sm text-text-soft">
+                Historial de ventas
+              </p>
+            </div>
+
+            <SalesList sales={sales} />
+          </div>
+        )}
+
+        <BottomNav
+          view={view}
+          onChangeView={setView}
         />
-      
     </main>
   )
 } 

@@ -13,11 +13,13 @@ import SaleModal from "./SaleModal"
 type DashboardProps = {
     sales: Sale[]   
     onSaleAdded: (sale: Sale) => void
+    onViewSales: () => void
 }
 
 export default function Dashboard({
     sales,
-    onSaleAdded
+    onSaleAdded,
+    onViewSales
 }: DashboardProps) {
     const today = new Date().toISOString().split("T")[0]
     const [isSaleFormOpen, setIsSaleFormOpen] = useState(false)
@@ -106,6 +108,9 @@ return (
         <AddSaleButton
             onClick={() => setIsSaleFormOpen(true)}
         />
+
+        
+        
         {isSaleFormOpen && (
             <SaleModal
                 onClose ={() => setIsSaleFormOpen(false)}
