@@ -1,6 +1,6 @@
 "use client"
 
-import { brands } from "@/data/brand"
+import type { Brand } from "@/types/brand"
 import { 
     calculateDailyCommission, 
     calculateMonthlyCommission, 
@@ -21,12 +21,14 @@ function getLocalDate() {
 }
 
 type DashboardProps = {
-    sales: Sale[]   
+    sales: Sale[]
+    brands: Brand[]
     onSaleAdded: (sale: Sale) => void
 }
 
 export default function Dashboard({
     sales,
+    brands,
     onSaleAdded,
 }: DashboardProps) {
     const today = getLocalDate()
@@ -121,6 +123,7 @@ return (
         
         {isSaleFormOpen && (
             <SaleModal
+                brands={brands}
                 onClose ={() => setIsSaleFormOpen(false)}
                 onSaleAdded={onSaleAdded}
             />

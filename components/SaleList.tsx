@@ -1,14 +1,15 @@
 "use client"
 
-import { brands } from "@/data/brand"
-import { Sale } from "@/types/sale" 
-import { deleteSale } from "@/lib/storage"
+import type { Brand } from "@/types/brand"
+import type { Sale } from "@/types/sale"
 
 type SalesListProps = {
     sales: Sale[]
+    brands: Brand[]
+    onSaleDeleted: (saleId: string) => Promise<void>
 }
 
-export default function SalesList({sales}: SalesListProps) {
+export default function SalesList({ sales, brands, onSaleDeleted }: SalesListProps) {
     const sortedSales = [...sales].sort(
         (a, b) => b.date.localeCompare(a.date)
     )
@@ -20,7 +21,7 @@ export default function SalesList({sales}: SalesListProps) {
                     (brand) => brand.id === sale.brandId
                 )
 
-                const handleDelete = () => {
+                const handleDelete = async () => {
                     const confirmed = window.confirm(
                         "¿Quieres eliminar esta venta?"
                     )
@@ -29,7 +30,11 @@ export default function SalesList({sales}: SalesListProps) {
                         return
                     }
 
-                    deleteSale(sale.id)
+                    try {
+                        await onSaleDeleted(sale.id)
+                    } catch {
+                        window.alert("No se pudo eliminar la venta.")
+                    }
                 }
 
                 return (

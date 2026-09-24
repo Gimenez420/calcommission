@@ -10,8 +10,13 @@ import AuthForm from "@/components/AuthForm"
 import BottomNav from "@/components/BottomNav"
 import Dashboard from "@/components/Dashboard"
 import SalesList from "@/components/SaleList"
+import { getBrandsFromDatabase } from "@/lib/supabase/brands"
 import { createClient } from "@/lib/supabase/client"
-import { getSalesFromDatabase } from "@/lib/supabase/sales"
+import {
+  deleteSaleFromDatabase,
+  getSalesFromDatabase,
+} from "@/lib/supabase/sales"
+import type { Brand } from "@/types/brand"
 import { Sale } from "@/types/sale"
 
 
@@ -27,22 +32,33 @@ function getDisplayName(user: User | null){
 
 export default function Home() {
   const [sales, setSales] = useState<Sale[]>([])
+  const [brands, setBrands] = useState<Brand[] | null>(null)
   const [salesError, setSalesError] = useState("")
   const [view, setView] = useState<"dashboard" | "sales">("dashboard")
   const [isLoadingAuth, setIsLoadingAuth] = useState(true)
+  const [isLoadingData, setIsLoadingData] = useState(true)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [userName, setUserName] = useState("")
 
-  async function handleSignOut(){
+  async function handleSignOut() {
     const supabase = createClient()
     const { error } = await supabase.auth.signOut()
 
-    if ( error ) {
-      setSalesError("No se pudo cerrar la sesion")
+    if (error) {
+      setSalesError("No se pudo cerrar la sesión.")
       return
     }
 
     setSales([])
+    setBrands(null)
+    setSalesError("")
+  }
+
+  async function handleSaleDeleted(saleId: string) {
+    await deleteSaleFromDatabase(saleId)
+    setSales((currentSales) =>
+      currentSales.filter((sale) => sale.id !== saleId)
+    )
   }
 
   useEffect(() => {
@@ -55,6 +71,7 @@ export default function Home() {
 
       setUserName(getDisplayName(session?.user ?? null))
       setIsAuthenticated(Boolean(session))
+      setIsLoadingData(Boolean(session))
       setIsLoadingAuth(false)
     }
 
@@ -65,7 +82,14 @@ export default function Home() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUserName(getDisplayName(session?.user ?? null))
       setIsAuthenticated(Boolean(session))
+      setIsLoadingData(Boolean(session))
       setIsLoadingAuth(false)
+
+      if (!session) {
+        setSales([])
+        setBrands(null)
+        setSalesError("")
+      }
     })
 
     return () => {
@@ -80,27 +104,33 @@ export default function Home() {
     
     let isCurrent = true
 
-    getSalesFromDatabase()
-    .then((databaseSales) => {
+    Promise.all([getSalesFromDatabase(), getBrandsFromDatabase()])
+      .then(([databaseSales, databaseBrands]) => {
         if (!isCurrent) {
           return
         }
 
-      setSales(databaseSales)
-      setSalesError("")
-    })
-    .catch(() => {
-      if (isCurrent) {
-          setSalesError("No se han podido cargar las ventas.")
-      }
-    })
+        setSales(databaseSales)
+        setBrands(databaseBrands)
+        setSalesError("")
+      })
+      .catch(() => {
+        if (isCurrent) {
+          setSalesError("No se han podido cargar las ventas o las marcas.")
+        }
+      })
+      .finally(() => {
+        if (isCurrent) {
+          setIsLoadingData(false)
+        }
+      })
 
   return () => {
     isCurrent = false
   }
 }, [isAuthenticated])
 
-  if (isLoadingAuth) {
+  if (isLoadingAuth || (isAuthenticated && isLoadingData)) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-background px-5">
         <p className="text-sm text-text-soft">Cargando...</p>
@@ -109,7 +139,24 @@ export default function Home() {
   }
 
   if (!isAuthenticated) {
-    return <AuthForm onAuthenticated={() => setIsAuthenticated(true)} />
+    return (
+      <AuthForm
+        onAuthenticated={() => {
+          setIsLoadingData(true)
+          setIsAuthenticated(true)
+        }}
+      />
+    )
+  }
+
+  if (!brands) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background px-5">
+        <p className="text-sm text-pink-600">
+          {salesError || "No se han podido cargar las marcas. Recarga la página."}
+        </p>
+      </main>
+    )
   }
 
   return (
@@ -141,9 +188,13 @@ export default function Home() {
       </div>
 
       {view === "dashboard" ? (
-        <Dashboard sales={sales} onSaleAdded={(sale) => {
-          setSales((currentSales) => [sale, ...currentSales])
-        }} />
+        <Dashboard
+          sales={sales}
+          brands={brands}
+          onSaleAdded={(sale) => {
+            setSales((currentSales) => [sale, ...currentSales])
+          }}
+        />
 
       ) : (
         <div className="mx-auto mt-6 w-full max-w-md space-y-5">
@@ -155,7 +206,11 @@ export default function Home() {
             </p>
           </div>
 
-          <SalesList sales={sales} />
+          <SalesList
+            sales={sales}
+            brands={brands}
+            onSaleDeleted={handleSaleDeleted}
+          />
         </div>
       )}
 

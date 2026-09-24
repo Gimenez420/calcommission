@@ -1,14 +1,17 @@
 "use client"
 
 import SaleForm from "./SaleForm"
-import { Sale } from "@/types/sale"
+import type { Brand } from "@/types/brand"
+import type { Sale } from "@/types/sale"
 
 type SaleModalProps = {
+  brands: Brand[]
   onClose: () => void
   onSaleAdded: (sale: Sale) => void
 }
 
 export default function SaleModal({
+  brands,
   onClose,
   onSaleAdded,
 }: SaleModalProps) {
@@ -31,6 +34,7 @@ export default function SaleModal({
         </div>
 
         <SaleForm
+          brands={brands}
           onSaleAdded={onSaleAdded}
           onClose={onClose}
         />

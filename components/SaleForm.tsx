@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { brands } from "@/data/brand"
-import { Sale } from "@/types/sale"
+import type { Brand } from "@/types/brand"
+import type { Sale } from "@/types/sale"
 import { addSalesToDatabase } from "@/lib/supabase/sales"
 
 type PendingSale = {
@@ -11,11 +11,13 @@ type PendingSale = {
 }
 
 type SaleFormProps = {
+  brands: Brand[]
   onSaleAdded: (sale: Sale) => void
   onClose: () => void
 }
 
 export default function SaleForm({
+  brands,
   onSaleAdded,
   onClose,
 }: SaleFormProps) {
@@ -25,11 +27,11 @@ export default function SaleForm({
 
   const [pendingSales, setPendingSales] = useState<PendingSale[]>([])
 
-  const [brandId, setBrandId] = useState(brands[0].id)
+  const [brandId, setBrandId] = useState(brands[0]?.id ?? "")
   const [amount, setAmount] = useState("")
 
   function handleAddSale() {
-    if (!amount || Number(amount) <= 0) {
+    if (!brandId || !amount || Number(amount) <= 0) {
       return
     }
 
@@ -175,6 +177,7 @@ export default function SaleForm({
         <select
           id="sale-brand"
           value={brandId}
+          disabled={brands.length === 0}
           onChange={(event) => setBrandId(event.target.value)}
           className="w-full rounded-2xl border border-border bg-pink-50 px-4 py-3 text-text outline-none transition focus:border-pink-400 focus:ring-2 focus:ring-pink-200"
         >

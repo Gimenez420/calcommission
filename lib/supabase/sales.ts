@@ -22,9 +22,19 @@ function toSale(row: SaleRow): Sale {
 export async function getSalesFromDatabase(): Promise<Sale[]> {
   const supabase = createClient()
 
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    throw new Error("Debes iniciar sesión para cargar las ventas.")
+  }
+
   const { data, error } = await supabase
     .from("sales")
     .select("id, brand_id, amount, sale_date")
+    .eq("owner_id", user.id)
     .order("sale_date", { ascending: false })
     .order("created_at", { ascending: false })
 
@@ -36,8 +46,7 @@ export async function getSalesFromDatabase(): Promise<Sale[]> {
 }
 
 export async function addSalesToDatabase(
-  sales: NewSale[],
-  ownerId?: string
+  sales: NewSale[]
 ): Promise<Sale[]> {
   const supabase = createClient()
 
@@ -54,7 +63,7 @@ export async function addSalesToDatabase(
     .from("sales")
     .insert(
       sales.map((sale) => ({
-        owner_id: ownerId ?? user.id,
+        owner_id: user.id,
         created_by: user.id,
         brand_id: sale.brandId,
         amount: sale.amount,
@@ -68,4 +77,27 @@ export async function addSalesToDatabase(
   }
 
   return (data as SaleRow[]).map(toSale)
+}
+
+export async function deleteSaleFromDatabase(saleId: string): Promise<void> {
+  const supabase = createClient()
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    throw new Error("Debes iniciar sesión para eliminar una venta.")
+  }
+
+  const { error } = await supabase
+    .from("sales")
+    .delete()
+    .eq("id", saleId)
+    .eq("owner_id", user.id)
+
+  if (error) {
+    throw new Error(error.message)
+  }
 }
