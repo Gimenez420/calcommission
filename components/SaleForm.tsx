@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { brands } from "@/data/brand"
 import { Sale } from "@/types/sale"
-import { getSales, saveSales } from "@/lib/storage"
+import { addSalesToDatabase } from "@/lib/supabase/sales"
 
 type PendingSale = {
   brandId: string
@@ -58,37 +58,42 @@ export default function SaleForm({
     )
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
 
     if (pendingSales.length === 0) {
-      return;
+      return
     }
-    
+
     const confirmed = window.confirm(
       `¿Quieres guardar las ${pendingSales.length} ventas?`
     )
 
-    if(!confirmed){
+    if (!confirmed) {
       return
     }
 
-    const newSales: Sale[] = pendingSales.map((sale) => ({
-      id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    const newSales = pendingSales.map((sale) => ({
       brandId: sale.brandId,
       amount: Number(sale.amount),
       date,
-    }));
+    }))
 
-    const currentSales = getSales();
+    try {
+      const savedSales = await addSalesToDatabase(newSales)
 
-    saveSales([...currentSales, ...newSales]);
+      savedSales.forEach((sale) => {
+        onSaleAdded(sale)
+      })
 
-    newSales.forEach((sale) => {
-      onSaleAdded(sale);
-    });
-
-    onClose();
+      onClose()
+    } catch (error) {
+      window.alert(
+        error instanceof Error
+          ? `No se pudieron guardar las ventas: ${error.message}`
+          : "No se pudieron guardar las ventas."
+      )
+    }
   }
 
   return (
